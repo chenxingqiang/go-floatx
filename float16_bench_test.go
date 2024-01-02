@@ -1,12 +1,9 @@
-// Copyright 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker
-
-package float16_test
+package gofloatx_test
 
 import (
+	float16 "github.com/chenxingqiang/go-floatx"
 	"math"
 	"testing"
-
-	"github.com/x448/float16"
 )
 
 // prevent compiler optimizing out code by assigning to these

@@ -1,3 +1,3 @@
-module github.com/x448/float16
+module github.com/chenxingqiang/go-floatx
 
 go 1.11

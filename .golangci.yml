@@ -1,9 +1,9 @@
-# github.com/x448/float16/.golangci.yml
+# github.com/chenxingqiang/gofloatx/.golangci.yml
 linters:
   disable-all: true
   enable:
     - deadcode
-    - dupl    
+    - dupl
     - errcheck
     - goconst
     - gocyclo
@@ -22,7 +22,6 @@ linters:
     - unparam
     - unused
     - varcheck
-   
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
@@ -54,13 +53,13 @@ linters-settings:
       - octalLiteral
       - paramTypeCombine
       - whyNoLint
-      - wrapperFunc    
+      - wrapperFunc
   gocyclo:
     min-complexity: 15
   gofmt:
-    simplify: false    
+    simplify: false
   goimports:
-    local-prefixes: github.com/x448/float16
+    local-prefixes: github.com/chenxingqiang/gofloatx
   golint:
     min-confidence: 0
   govet:

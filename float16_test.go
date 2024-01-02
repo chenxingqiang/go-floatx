@@ -1,6 +1,6 @@
 // Copyright 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker
 
-package float16_test
+package gofloatx_test
 
 import (
 	"bytes"
@@ -8,10 +8,9 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	float16 "github.com/chenxingqiang/go-floatx"
 	"math"
 	"testing"
-
-	"github.com/x448/float16"
 )
 
 // wantF32toF16bits is a tiny subset of expected values

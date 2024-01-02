@@ -1,12 +1,12 @@
 # Float16 (Binary16) in Go/Golang
-[![](https://github.com/x448/float16/workflows/ci/badge.svg)](https://github.com/x448/float16/actions?query=workflow%3Aci)
-[![](https://github.com/x448/float16/workflows/cover%20100%25/badge.svg)](https://github.com/x448/float16/actions?query=workflow%3A%22cover+100%25%22)
-[![](https://github.com/x448/float16/workflows/linters/badge.svg)](https://github.com/x448/float16/actions?query=workflow%3Alinters)
-[![Go Report Card](https://goreportcard.com/badge/github.com/x448/float16)](https://goreportcard.com/report/github.com/x448/float16)
-[![Release](https://img.shields.io/github/release/x448/float16.svg?style=flat-square)](https://github.com/x448/float16/releases)
+[![](https://github.com/chenxingqiang/gofloatx/workflows/ci/badge.svg)](https://github.com/chenxingqiang/gofloatx/actions?query=workflow%3Aci)
+[![](https://github.com/chenxingqiang/gofloatx/workflows/cover%20100%25/badge.svg)](https://github.com/chenxingqiang/gofloatx/actions?query=workflow%3A%22cover+100%25%22)
+[![](https://github.com/chenxingqiang/gofloatx/workflows/linters/badge.svg)](https://github.com/chenxingqiang/gofloatx/actions?query=workflow%3Alinters)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chenxingqiang/gofloatx)](https://goreportcard.com/report/github.com/chenxingqiang/gofloatx)
+[![Release](https://img.shields.io/github/release/x448/float16.svg?style=flat-square)](https://github.com/chenxingqiang/gofloatx/releases)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/x448/float16/master/LICENSE)
 
-[__`x448/float16`__](https://github.com/x448/float16) package provides [IEEE 754 half-precision floating-point format (binary16)](https://en.wikipedia.org/wiki/Half-precision_floating-point_format) with IEEE 754 default rounding for conversions. IEEE 754-2008 refers to this 16-bit floating-point format as binary16.
+[__`x448/float16`__](https://github.com/chenxingqiang/gofloatx) package provides [IEEE 754 half-precision floating-point format (binary16)](https://en.wikipedia.org/wiki/Half-precision_floating-point_format) with IEEE 754 default rounding for conversions. IEEE 754-2008 refers to this 16-bit floating-point format as binary16.
 
 IEEE 754 default rounding ("Round-to-Nearest RoundTiesToEven") is considered the most accurate and statistically unbiased estimate of the true result.
 
@@ -54,7 +54,7 @@ Unit tests in normal mode take about 1-2 minutes to check all 4+ billion float32
 Unit tests in short mode use a small subset (around 229 float32 inputs) and finish in under 0.01 second while still reaching 100% code coverage.
 
 ## Usage
-Install with `go get github.com/x448/float16`.
+Install with `go get github.com/chenxingqiang/gofloatx`.
 ```
 // Convert float32 to float16
 pi := float32(math.Pi)
@@ -73,7 +73,7 @@ if float16.PrecisionFromfloat32(pi) == float16.PrecisionExact {
 ## Float16 Type and API
 Float16 (capitalized) is a Go type with uint16 as the underlying state.  There are 6 exported functions and 9 exported methods.
 ```
-package float16 // import "github.com/x448/float16"
+package float16 // import "github.com/chenxingqiang/gofloatx"
 
 // Exported types and consts
 type Float16 uint16
@@ -105,7 +105,7 @@ PrecisionFromfloat32(f32 float32) Precision  // quickly indicates exact, ..., ov
 (f Float16) Signbit() bool         // true if f is negative or negative zero
 (f Float16) String() string        // string representation of f to satisfy fmt.Stringer interface
 ```
-See [API](https://godoc.org/github.com/x448/float16) at godoc.org for more info.
+See [API](https://godoc.org/github.com/chenxingqiang/gofloatx) at godoc.org for more info.
 
 ## Benchmarks
 Conversions (in pure Go) are around 2.65 ns/op for float16 -> float32 and float32 -> float16 on amd64. Speeds can vary depending on input value.
