@@ -1,5 +1,5 @@
 # GitHub Actions - CI for Go with just builders and tests.
-# https://github.com/chenxingqiang/gofloatx/blob/master/.github/workflows/ci.yml 
+# https://github.com/chenxingqiang/go-floatx/blob/master/.github/workflows/ci.yml 
 # Use cover.yml for coverage and safer-golangci-lint.yml for linting.
 name: ci
 on:

@@ -1,4 +1,4 @@
-# github.com/chenxingqiang/gofloatx/.golangci.yml
+# github.com/chenxingqiang/go-floatx/.golangci.yml
 linters:
   disable-all: true
   enable:
@@ -59,7 +59,7 @@ linters-settings:
   gofmt:
     simplify: false
   goimports:
-    local-prefixes: github.com/chenxingqiang/gofloatx
+    local-prefixes: github.com/chenxingqiang/go-floatx
   golint:
     min-confidence: 0
   govet:

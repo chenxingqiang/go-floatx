@@ -1,6 +1,6 @@
 // Copyright 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker
 
-package gofloatx_test
+package floatx_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	float16 "github.com/chenxingqiang/go-floatx"
+	floatx "github.com/chenxingqiang/go-floatx"
 	"math"
 	"testing"
 )
@@ -250,90 +250,90 @@ var wantF32toF16bits = []struct {
 	{in: math.Float32frombits(0x477ff000), out: 0x7c00}, // in f32=65520.000000, out f16=+Inf
 }
 
-func TestPrecisionFromfloat32(t *testing.T) {
+func TestF16PrecisionFromfloat32(t *testing.T) {
 	for i, v := range wantF32toF16bits {
-		f16 := float16.Fromfloat32(v.in)
+		f16 := floatx.F16Fromfloat32(v.in)
 		u16 := uint16(f16)
 
 		if u16 != v.out {
 			t.Errorf("i=%d, in f32bits=0x%08x, wanted=0x%04x, got=0x%04x.", i, math.Float32bits(v.in), v.out, u16)
 		}
 
-		checkPrecision(t, v.in, f16, uint64(i))
+		F16CheckPrecision(t, v.in, f16, uint64(i))
 	}
 
 	f32 := float32(5.5) // value that doesn't drop any bits in the significand, is within normal exponent range
-	pre := float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionExact {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionExact (%d), got=%d.", math.Float32bits(f32), float16.PrecisionExact, pre)
+	pre := floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionExact {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionExact (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionExact, pre)
 	}
 
 	f32 = math.Float32frombits(0x38000000) // subnormal value with coef = 0 that can round-trip float32->float16->float32
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionUnknown {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), float16.PrecisionUnknown, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionUnknown {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionUnknown, pre)
 	}
 
 	f32 = math.Float32frombits(0x387fc000) // subnormal value with coef !=0 that can round-trip float32->float16->float32
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionUnknown {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), float16.PrecisionUnknown, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionUnknown {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionUnknown, pre)
 	}
 
 	f32 = math.Float32frombits(0x33c00000) // subnormal value with no dropped bits that cannot round-trip float32->float16->float32
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionUnknown {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), float16.PrecisionUnknown, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionUnknown {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnknown (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionUnknown, pre)
 	}
 
 	f32 = math.Float32frombits(0x38000001) // subnormal value with dropped non-zero bits > 0
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionInexact {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionInexact (%d), got=%d.", math.Float32bits(f32), float16.PrecisionInexact, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionInexact {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionInexact (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionInexact, pre)
 	}
 
 	f32 = float32(math.Pi) // value that cannot "preserve value" because it drops bits in the significand
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionInexact {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionInexact (%d), got=%d.", math.Float32bits(f32), float16.PrecisionInexact, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionInexact {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionInexact (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionInexact, pre)
 	}
 
 	f32 = math.Float32frombits(0x1) // value that will underflow
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionUnderflow {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnderflow (%d), got=%d.", math.Float32bits(f32), float16.PrecisionUnderflow, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionUnderflow {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnderflow (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionUnderflow, pre)
 	}
 
 	f32 = math.Float32frombits(0x33000000) // value that will underflow
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionUnderflow {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnderflow (%d), got=%d.", math.Float32bits(f32), float16.PrecisionUnderflow, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionUnderflow {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionUnderflow (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionUnderflow, pre)
 	}
 
 	f32 = math.Float32frombits(0x47800000) // value that will overflow
-	pre = float16.PrecisionFromfloat32(f32)
-	if pre != float16.PrecisionOverflow {
-		t.Errorf("f32bits=0x%08x, wanted=PrecisionOverflow (%d), got=%d.", math.Float32bits(f32), float16.PrecisionOverflow, pre)
+	pre = floatx.F16PrecisionFromfloat32(f32)
+	if pre != floatx.F16PrecisionOverflow {
+		t.Errorf("f32bits=0x%08x, wanted=PrecisionOverflow (%d), got=%d.", math.Float32bits(f32), floatx.F16PrecisionOverflow, pre)
 	}
 
 }
 
-func TestFromNaN32ps(t *testing.T) {
+func TestF16FromNaN32ps(t *testing.T) {
 	for i, v := range wantF32toF16bits {
-		f16 := float16.Fromfloat32(v.in)
+		f16 := floatx.F16Fromfloat32(v.in)
 		u16 := uint16(f16)
 
 		if u16 != v.out {
 			t.Errorf("i=%d, in f32bits=0x%08x, wanted=0x%04x, got=0x%04x.", i, math.Float32bits(v.in), v.out, u16)
 		}
 
-		checkFromNaN32ps(t, v.in, f16)
+		F16CheckFromNaN32ps(t, v.in, f16)
 	}
 
 	// since checkFromNaN32ps rejects non-NaN input, try one here
-	nan, err := float16.FromNaN32ps(float32(math.Pi))
-	if err != float16.ErrInvalidNaNValue {
-		t.Errorf("FromNaN32ps: in float32(math.Pi) wanted err float16.ErrInvalidNaNValue, got err = %q", err)
+	nan, err := floatx.F16FromNaN32ps(float32(math.Pi))
+	if err != floatx.F16ErrInvalidNaNValue {
+		t.Errorf("FromNaN32ps: in float32(math.Pi) wanted err floatx.ErrInvalidNaNValue, got err = %q", err)
 	}
 	if err.Error() != "float16: invalid NaN value, expected IEEE 754 NaN" {
 		t.Errorf("unexpected string value returned by err.Error() for ErrInvalidNaNValue: %s", err.Error())
@@ -346,10 +346,10 @@ func TestFromNaN32ps(t *testing.T) {
 
 // Test a small subset of possible conversions from float32 to Float16.
 // TestSomeFromFloat32 runs in under 1 second while TestAllFromFloat32 takes about 45 seconds.
-func TestSomeFromFloat32(t *testing.T) {
+func TestF16SomeFromFloat32(t *testing.T) {
 
 	for i, v := range wantF32toF16bits {
-		f16 := float16.Fromfloat32(v.in)
+		f16 := floatx.F16Fromfloat32(v.in)
 		u16 := uint16(f16)
 
 		if u16 != v.out {
@@ -360,7 +360,7 @@ func TestSomeFromFloat32(t *testing.T) {
 
 // Test all possible 4294967296 float32 input values and results for
 // Fromfloat32(), FromNaN32ps(), and PrecisionFromfloat32().
-func TestAllFromFloat32(t *testing.T) {
+func TestF16AllFromFloat32(t *testing.T) {
 
 	if testing.Short() {
 		t.Skip("skipping TestAllFromFloat32 in short mode.")
@@ -380,10 +380,10 @@ func TestAllFromFloat32(t *testing.T) {
 		// fill results
 		for j := uint32(0); j < batchSize; j++ {
 			inF32 := math.Float32frombits(uint32(i) + j)
-			f16 := float16.Fromfloat32(inF32)
+			f16 := floatx.F16Fromfloat32(inF32)
 			results[j] = uint16(f16)
-			checkPrecision(t, inF32, f16, i)
-			checkFromNaN32ps(t, inF32, f16)
+			F16CheckPrecision(t, inF32, f16, i)
+			F16CheckFromNaN32ps(t, inF32, f16)
 		}
 
 		// convert results to []byte
@@ -411,7 +411,7 @@ func TestAllFromFloat32(t *testing.T) {
 
 // Test all 65536 conversions from float16 to float32.
 // TestAllToFloat32 runs in under 1 second.
-func TestAllToFloat32(t *testing.T) {
+func TestF16AllToFloat32(t *testing.T) {
 	// Blake2b is "078d8e3fac9480de1493f22c8f9bfc1eb2051537c536f00f621557d70eed1af057a487c3e252f6d593769f5288d5ab66d8e9cd1adba359838802944bdb731f4d"
 	const wantSHA512 = "1a4ccec9fd7b6e83310c6b4958a25778cd95f8d4f88b19950e4b8d6932a955f7fbd96b1c9bd9b2a79c3a9d34d653f55e671f8f86e6a5a876660cd38479001aa6"
 	const batchSize uint32 = 16384
@@ -423,7 +423,7 @@ func TestAllToFloat32(t *testing.T) {
 		// fill results
 		for j := uint32(0); j < batchSize; j++ {
 			inU16 := uint16(i) + uint16(j)
-			f16 := float16.Float16(inU16)
+			f16 := floatx.Float16(inU16)
 			results[j] = f16.Float32()
 		}
 
@@ -451,163 +451,163 @@ func TestAllToFloat32(t *testing.T) {
 
 }
 
-func TestFrombits(t *testing.T) {
+func TestF16Frombits(t *testing.T) {
 	x := uint16(0x1234)
-	f16 := float16.Frombits(x)
+	f16 := floatx.F16Frombits(x)
 	if uint16(f16) != f16.Bits() || uint16(f16) != x {
-		t.Errorf("float16.Frombits(0x7fff) returned %04x, wanted %04x", uint16(f16), x)
+		t.Errorf("floatx.Frombits(0x7fff) returned %04x, wanted %04x", uint16(f16), x)
 	}
 }
 
-func TestNaN(t *testing.T) {
-	nan := float16.NaN()
+func TestF16NaN(t *testing.T) {
+	nan := floatx.F16NaN()
 	if !nan.IsNaN() {
 		t.Errorf("nan.IsNaN() returned false, wanted true")
 	}
 }
 
-func TestInf(t *testing.T) {
-	posInf := float16.Inf(0)
+func TestF16Inf(t *testing.T) {
+	posInf := floatx.F16Inf(0)
 	if uint16(posInf) != 0x7c00 {
-		t.Errorf("float16.Inf(0) returned %04x, wanted %04x", uint16(posInf), 0x7c00)
+		t.Errorf("floatx.Inf(0) returned %04x, wanted %04x", uint16(posInf), 0x7c00)
 	}
 
-	posInf = float16.Inf(1)
+	posInf = floatx.F16Inf(1)
 	if uint16(posInf) != 0x7c00 {
-		t.Errorf("float16.Inf(1) returned %04x, wanted %04x", uint16(posInf), 0x7c00)
+		t.Errorf("floatx.Inf(1) returned %04x, wanted %04x", uint16(posInf), 0x7c00)
 	}
 
-	negInf := float16.Inf(-1)
+	negInf := floatx.F16Inf(-1)
 	if uint16(negInf) != 0xfc00 {
-		t.Errorf("float16.Inf(-1) returned %04x, wanted %04x", uint16(negInf), 0xfc00)
+		t.Errorf("floatx.Inf(-1) returned %04x, wanted %04x", uint16(negInf), 0xfc00)
 	}
 }
 
-func TestBits(t *testing.T) {
+func TestF16Bits(t *testing.T) {
 	x := uint16(0x1234)
-	f16 := float16.Frombits(x)
+	f16 := floatx.F16Frombits(x)
 	if uint16(f16) != f16.Bits() || f16.Bits() != x {
 		t.Errorf("Bits() returned %04x, wanted %04x", uint16(f16), x)
 	}
 }
 
-func TestIsFinite(t *testing.T) {
+func TestF16IsFinite(t *testing.T) {
 	// IsFinite returns true if f is neither infinite nor NaN.
 
-	finite := float16.Fromfloat32(float32(1.5))
+	finite := floatx.F16Fromfloat32(float32(1.5))
 	if !finite.IsFinite() {
 		t.Errorf("finite.Infinite() returned false, wanted true")
 	}
 
-	posInf := float16.Inf(0)
+	posInf := floatx.F16Inf(0)
 	if posInf.IsFinite() {
 		t.Errorf("posInf.Infinite() returned true, wanted false")
 	}
 
-	negInf := float16.Inf(-1)
+	negInf := floatx.F16Inf(-1)
 	if negInf.IsFinite() {
 		t.Errorf("negInf.Infinite() returned true, wanted false")
 	}
 
-	nan := float16.NaN()
+	nan := floatx.F16NaN()
 	if nan.IsFinite() {
 		t.Errorf("nan.Infinite() returned true, wanted false")
 	}
 }
 
-func TestIsNaN(t *testing.T) {
+func TestF16IsNaN(t *testing.T) {
 
-	f16 := float16.Float16(0)
+	f16 := floatx.Float16(0)
 	if f16.IsNaN() {
 		t.Errorf("Float16(0).IsNaN() returned true, wanted false")
 	}
 
-	f16 = float16.Float16(0x7e00)
+	f16 = floatx.Float16(0x7e00)
 	if !f16.IsNaN() {
 		t.Errorf("Float16(0x7e00).IsNaN() returned false, wanted true")
 	}
 }
 
-func TestIsQuietNaN(t *testing.T) {
+func TestF16IsQuietNaN(t *testing.T) {
 
-	f16 := float16.Float16(0)
+	f16 := floatx.Float16(0)
 	if f16.IsQuietNaN() {
 		t.Errorf("Float16(0).IsQuietNaN() returned true, wanted false")
 	}
 
-	f16 = float16.Float16(0x7e00)
+	f16 = floatx.Float16(0x7e00)
 	if !f16.IsQuietNaN() {
 		t.Errorf("Float16(0x7e00).IsQuietNaN() returned false, wanted true")
 	}
 
-	f16 = float16.Float16(0x7e00 ^ 0x0200)
+	f16 = floatx.Float16(0x7e00 ^ 0x0200)
 	if f16.IsQuietNaN() {
 		t.Errorf("Float16(0x7e00 ^ 0x0200).IsQuietNaN() returned true, wanted false")
 	}
 }
 
-func TestIsNormal(t *testing.T) {
+func TestF16IsNormal(t *testing.T) {
 	// IsNormal returns true if f is neither zero, infinite, subnormal, or NaN.
 
-	zero := float16.Frombits(0)
+	zero := floatx.F16Frombits(0)
 	if zero.IsNormal() {
 		t.Errorf("zero.IsNormal() returned true, wanted false")
 	}
 
-	posInf := float16.Inf(0)
+	posInf := floatx.F16Inf(0)
 	if posInf.IsNormal() {
 		t.Errorf("posInf.IsNormal() returned true, wanted false")
 	}
 
-	negInf := float16.Inf(-1)
+	negInf := floatx.F16Inf(-1)
 	if negInf.IsNormal() {
 		t.Errorf("negInf.IsNormal() returned true, wanted false")
 	}
 
-	nan := float16.NaN()
+	nan := floatx.F16NaN()
 	if nan.IsNormal() {
 		t.Errorf("nan.IsNormal() returned true, wanted false")
 	}
 
-	subnormal := float16.Frombits(0x0001)
+	subnormal := floatx.F16Frombits(0x0001)
 	if subnormal.IsNormal() {
 		t.Errorf("subnormal.IsNormal() returned true, wanted false")
 	}
 
-	normal := float16.Fromfloat32(float32(1.5))
+	normal := floatx.F16Fromfloat32(float32(1.5))
 	if !normal.IsNormal() {
 		t.Errorf("normal.IsNormal() returned false, wanted true")
 	}
 
 }
 
-func TestSignbit(t *testing.T) {
+func TestF16Signbit(t *testing.T) {
 
-	f16 := float16.Fromfloat32(float32(0.0))
+	f16 := floatx.F16Fromfloat32(float32(0.0))
 	if f16.Signbit() {
-		t.Errorf("float16.Fromfloat32(float32(0)).Signbit() returned true, wanted false")
+		t.Errorf("floatx.Fromfloat32(float32(0)).Signbit() returned true, wanted false")
 	}
 
-	f16 = float16.Fromfloat32(float32(2.0))
+	f16 = floatx.F16Fromfloat32(float32(2.0))
 	if f16.Signbit() {
-		t.Errorf("float16.Fromfloat32(float32(2)).Signbit() returned true, wanted false")
+		t.Errorf("floatx.Fromfloat32(float32(2)).Signbit() returned true, wanted false")
 	}
 
-	f16 = float16.Fromfloat32(float32(-2.0))
+	f16 = floatx.F16Fromfloat32(float32(-2.0))
 	if !f16.Signbit() {
-		t.Errorf("float16.Fromfloat32(float32(-2)).Signbit() returned false, wanted true")
+		t.Errorf("floatx.Fromfloat32(float32(-2)).Signbit() returned false, wanted true")
 	}
 
 }
 
-func TestString(t *testing.T) {
-	f16 := float16.Fromfloat32(1.5)
+func TestF16String(t *testing.T) {
+	f16 := floatx.F16Fromfloat32(1.5)
 	s := f16.String()
 	if s != "1.5" {
 		t.Errorf("Float16(1.5).String() returned %s, wanted 1.5", s)
 	}
 
-	f16 = float16.Fromfloat32(3.141593)
+	f16 = floatx.F16Fromfloat32(3.141593)
 	s = f16.String()
 	if s != "3.140625" {
 		t.Errorf("Float16(3.141593).String() returned %s, wanted 3.140625", s)
@@ -615,39 +615,39 @@ func TestString(t *testing.T) {
 
 }
 
-func TestIsInf(t *testing.T) {
+func TestF16IsInf(t *testing.T) {
 
-	f16 := float16.Float16(0)
+	f16 := floatx.Float16(0)
 	if f16.IsInf(0) {
 		t.Errorf("Float16(0).IsInf(0) returned true, wanted false")
 	}
 
-	f16 = float16.Float16(0x7c00)
+	f16 = floatx.Float16(0x7c00)
 	if !f16.IsInf(0) {
 		t.Errorf("Float16(0x7c00).IsInf(0) returned false, wanted true")
 	}
 
-	f16 = float16.Float16(0x7c00)
+	f16 = floatx.Float16(0x7c00)
 	if !f16.IsInf(1) {
 		t.Errorf("Float16(0x7c00).IsInf(1) returned false, wanted true")
 	}
 
-	f16 = float16.Float16(0x7c00)
+	f16 = floatx.Float16(0x7c00)
 	if f16.IsInf(-1) {
 		t.Errorf("Float16(0x7c00).IsInf(-1) returned true, wanted false")
 	}
 
-	f16 = float16.Float16(0xfc00)
+	f16 = floatx.Float16(0xfc00)
 	if !f16.IsInf(0) {
 		t.Errorf("Float16(0xfc00).IsInf(0) returned false, wanted true")
 	}
 
-	f16 = float16.Float16(0xfc00)
+	f16 = floatx.Float16(0xfc00)
 	if f16.IsInf(1) {
 		t.Errorf("Float16(0xfc00).IsInf(1) returned true, wanted false")
 	}
 
-	f16 = float16.Float16(0xfc00)
+	f16 = floatx.Float16(0xfc00)
 	if !f16.IsInf(-1) {
 		t.Errorf("Float16(0xfc00).IsInf(-1) returned false, wanted true")
 	}
@@ -676,14 +676,14 @@ func isQuietNaN32(f32 float32) bool {
 	return (exp == 128) && (coef != 0) && ((coef & 0x00400000) != 0)
 }
 
-func checkFromNaN32ps(t *testing.T, f32 float32, f16 float16.Float16) {
+func F16CheckFromNaN32ps(t *testing.T, f32 float32, f16 floatx.Float16) {
 
 	if !isNaN32(f32) {
 		return
 	}
 
 	u32 := math.Float32bits(f32)
-	nan16, err := float16.FromNaN32ps(f32)
+	nan16, err := floatx.F16FromNaN32ps(f32)
 
 	if isQuietNaN32(f32) {
 		// result should be the same
@@ -717,49 +717,49 @@ func checkFromNaN32ps(t *testing.T, f32 float32, f16 float16.Float16) {
 	}
 }
 
-func checkPrecision(t *testing.T, f32 float32, f16 float16.Float16, i uint64) {
+func F16CheckPrecision(t *testing.T, f32 float32, f16 floatx.Float16, i uint64) {
 	// TODO: rewrite this test when time allows
 
 	u32 := math.Float32bits(f32)
 	u16 := f16.Bits()
 	f32bis := f16.Float32()
 	u32bis := math.Float32bits(f32bis)
-	pre := float16.PrecisionFromfloat32(f32)
+	pre := floatx.F16PrecisionFromfloat32(f32)
 	roundtripped := u32 == u32bis
 	exp32, coef32, dropped32 := float32parts(f32)
 
 	if roundtripped {
-		checkRoundTrippedPrecision(t, u32, u16, u32bis, exp32, coef32, dropped32)
+		F16CheckRoundTrippedPrecision(t, u32, u16, u32bis, exp32, coef32, dropped32)
 		return
 	}
 
-	if pre == float16.PrecisionExact {
+	if pre == floatx.F16PrecisionExact {
 		// this should only happen if both input and output are NaN
 		if !(f16.IsNaN() && isNaN32(f32)) {
 			t.Errorf("i=%d, PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), got PrecisionExact when roundtrip failed with non-special value", i, u32, f32, u16, u32bis, f32bis)
 		}
 
-	} else if pre == float16.PrecisionUnknown {
+	} else if pre == floatx.F16PrecisionUnknown {
 		if exp32 < -24 {
 			t.Errorf("i=%d, PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), got PrecisionUnknown, wanted PrecisionUnderflow", i, u32, f32, u16, u32bis, f32bis)
 		}
 		if dropped32 != 0 {
 			t.Errorf("i=%d, PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), got PrecisionUnknown, wanted PrecisionInexact", i, u32, f32, u16, u32bis, f32bis)
 		}
-	} else if pre == float16.PrecisionInexact {
-		checkPrecisionInexact(t, u32, u16, u32bis, exp32, coef32, dropped32)
-	} else if pre == float16.PrecisionUnderflow {
+	} else if pre == floatx.F16PrecisionInexact {
+		F16CheckPrecisionInexact(t, u32, u16, u32bis, exp32, coef32, dropped32)
+	} else if pre == floatx.F16PrecisionUnderflow {
 		if exp32 >= -14 {
 			t.Errorf("i=%d, PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), got PrecisionUnderflow when exp32 is >= -14", i, u32, f32, u16, u32bis, f32bis)
 		}
-	} else if pre == float16.PrecisionOverflow {
+	} else if pre == floatx.F16PrecisionOverflow {
 		if exp32 <= 15 {
 			t.Errorf("i=%d, PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), got PrecisionOverflow when exp32 is <= 15", i, u32, f32, u16, u32bis, f32bis)
 		}
 	}
 }
 
-func checkPrecisionInexact(t *testing.T, u32 uint32, u16 uint16, u32bis uint32, exp32 int32, coef32 uint32, dropped32 uint32) {
+func F16CheckPrecisionInexact(t *testing.T, u32 uint32, u16 uint16, u32bis uint32, exp32 int32, coef32 uint32, dropped32 uint32) {
 	f32 := math.Float32frombits(u32)
 	f32bis := math.Float32frombits(u32bis)
 
@@ -777,19 +777,19 @@ func checkPrecisionInexact(t *testing.T, u32 uint32, u16 uint16, u32bis uint32, 
 	}
 }
 
-func checkRoundTrippedPrecision(t *testing.T, u32 uint32, u16 uint16, u32bis uint32, exp32 int32, coef32 uint32, dropped32 uint32) {
+func F16CheckRoundTrippedPrecision(t *testing.T, u32 uint32, u16 uint16, u32bis uint32, exp32 int32, coef32 uint32, dropped32 uint32) {
 	f32 := math.Float32frombits(u32)
 	f32bis := math.Float32frombits(u32bis)
-	pre := float16.PrecisionFromfloat32(f32)
-	f16 := float16.Frombits(u16)
+	pre := floatx.F16PrecisionFromfloat32(f32)
+	f16 := floatx.F16Frombits(u16)
 
 	if dropped32 != 0 {
 		t.Errorf("PrecisionFromfloat32 in f32bits=0x%08x (%f), out f16bits=0x%04x, back=0x%08x (%f), dropped32 != 0 with successful roundtrip", u32, f32, u16, u32bis, f32bis)
 	}
 
-	if pre != float16.PrecisionExact {
+	if pre != floatx.F16PrecisionExact {
 		// there are 2046 values that are subnormal and can round-trip float32->float16->float32
-		if pre != float16.PrecisionUnknown {
+		if pre != floatx.F16PrecisionUnknown {
 			t.Errorf("PrecisionFromfloat32 in f32bits=0x%08x (%032b) (%f), out f16bits=0x%04x (%v), back=0x%08x (%f), got %v, wanted PrecisionExact, exp=%d, coef=%d, drpd=%d", u32, u32, f32, u16, f16, u32bis, f32bis, pre, exp32, coef32, dropped32)
 		}
 	}
